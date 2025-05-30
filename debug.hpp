@@ -190,17 +190,18 @@
 #ifndef DEBUG_NAMESPACE_END
 # define DEBUG_NAMESPACE_END
 #endif
+#ifndef DEBUG_OUTPUT
+# define DEBUG_OUTPUT std::cerr <<
+#endif
 #ifndef DEBUG_GROUP
 # define DEBUG_GROUP 0
 #endif
-#ifndef DEBUG_OUTPUT
-# define DEBUG_OUTPUT(x) do { \
+#ifndef DEBUG_OUTPUT_GROUP
+# define DEBUG_OUTPUT_GROUP(x) do { \
     if (DEBUG_GROUP == 0) { \
-        std::cerr << x; \
-    } else { \
-        if (DEBUG_GROUP == group) { \
-            std::cerr << x; \
-        } \
+        DEBUG_OUTPUT(x); \
+    } else if (group == DEBUG_GROUP) { \
+            DEBUG_OUTPUT(x); \
     } \
 } while (0)
 #endif
@@ -1616,7 +1617,7 @@ public:
                 throw std::runtime_error(oss.str());
 # elif DEBUG_PANIC_METHOD == 1
                 oss << '\n';
-                DEBUG_OUTPUT(oss.str());
+                DEBUG_OUTPUT_GROUP(oss.str());
 #  if defined(DEBUG_PANIC_CUSTOM_TRAP)
                 DEBUG_PANIC_CUSTOM_TRAP;
                 return;
@@ -1635,18 +1636,18 @@ public:
 #  endif
 # elif DEBUG_PANIC_METHOD == 2
                 oss << '\n';
-                DEBUG_OUTPUT(oss.str());
+                DEBUG_OUTPUT_GROUP(oss.str());
                 std::terminate();
 # else
                 oss << '\n';
-                DEBUG_OUTPUT(oss.str());
+                DEBUG_OUTPUT_GROUP(oss.str());
                 return;
 # endif
             }
         }
         if (state == print) {
             oss << '\n';
-            DEBUG_OUTPUT(oss.str());
+            DEBUG_OUTPUT_GROUP(oss.str());
         }
 # if DEBUG_STEPPING == 1
         static std::mutex mutex;
