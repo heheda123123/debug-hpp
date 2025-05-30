@@ -201,7 +201,7 @@
     if (DEBUG_GROUP == 0) { \
         DEBUG_OUTPUT(x); \
     } else if (group == DEBUG_GROUP) { \
-            DEBUG_OUTPUT(x); \
+        DEBUG_OUTPUT(x); \
     } \
 } while (0)
 #endif
