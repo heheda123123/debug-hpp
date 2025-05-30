@@ -190,8 +190,19 @@
 #ifndef DEBUG_NAMESPACE_END
 # define DEBUG_NAMESPACE_END
 #endif
+#ifndef DEBUG_GROUP
+# define DEBUG_GROUP 0
+#endif
 #ifndef DEBUG_OUTPUT
-# define DEBUG_OUTPUT std::cerr <<
+# define DEBUG_OUTPUT(x) do { \
+    if (DEBUG_GROUP == 0) { \
+        std::cerr << x; \
+    } else { \
+        if (DEBUG_GROUP == group) { \
+            std::cerr << x; \
+        } \
+    } \
+} while (0)
 #endif
 #ifndef DEBUG_ENABLE_FILES_MATCH
 # define DEBUG_ENABLE_FILES_MATCH 0
@@ -1310,6 +1321,7 @@ private:
         panic = 2,
         supress = 3,
     } state;
+    int group;
 
     DEBUG_SOURCE_LOCATION loc;
 # if DEBUG_SHOW_TIMESTAMP == 2
@@ -1524,7 +1536,7 @@ private:
     }
 # endif
 public:
-    explicit debug(bool enable = true,
+    explicit debug(int group = 0, bool enable = true,
                    DEBUG_SOURCE_LOCATION const &loc =
                        DEBUG_SOURCE_LOCATION::current()) noexcept
         : state(enable
@@ -1533,7 +1545,8 @@ public:
 # endif
                     ? silent
                     : supress),
-          loc(loc) {
+          loc(loc),
+          group(group) {
     }
 
     debug &setloc(DEBUG_SOURCE_LOCATION const &newloc =
@@ -1971,7 +1984,7 @@ DEBUG_NAMESPACE_END
 DEBUG_NAMESPACE_BEGIN
 
 struct debug {
-    debug(bool = true, char const * = nullptr) noexcept {}
+    debug(int = 0, bool = true, char const * = nullptr) noexcept {}
 
     debug(debug &&) = delete;
     debug(debug const &) = delete;
@@ -2088,6 +2101,6 @@ DEBUG_NAMESPACE_END
 # undef debug
 #elif DEBUG_LEVEL
 # ifdef DEBUG_SOURCE_LOCATION_FAKER
-#  define debug() debug(true, DEBUG_SOURCE_LOCATION_FAKER)
+# define debug(...) debug(int(__VA_ARGS__), true, DEBUG_SOURCE_LOCATION_FAKER)
 # endif
 #endif
